@@ -6,9 +6,13 @@ import { motion } from "framer-motion";
 
 export default function LegalPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-950/20 to-black text-white">
+    <div className="min-h-screen bg-[#000000] text-white">
+      {/* Background gradient overlay */}
+      <div className="fixed inset-0 bg-gradient-to-br from-[#1a0b2e]/20 via-transparent to-[#1a0b2e]/20 pointer-events-none" />
+      
+      <div className="relative z-10">
       {/* Header */}
-      <div className="border-b border-purple-500/20 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+      <div className="border-b border-purple-500/20 bg-[#000000]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4" />
@@ -18,21 +22,21 @@ export default function LegalPage() {
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl md:text-6xl font-black mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
             Información Legal
           </h1>
-          <p className="text-gray-400 text-lg mb-12">
+          <p className="text-gray-400 text-base sm:text-lg mb-8 sm:mb-12">
             Última actualización: 3 de febrero de 2026
           </p>
 
           {/* Navegación rápida */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-8 sm:mb-12 lg:mb-16">
             <a href="#terminos" className="flex items-center gap-3 p-4 bg-purple-950/30 border border-purple-500/30 rounded-xl hover:bg-purple-950/50 transition-colors">
               <FileText className="w-6 h-6 text-purple-400" />
               <span className="font-semibold">Términos de Servicio</span>
@@ -295,7 +299,6 @@ export default function LegalPage() {
             </Link>
           </section>
         </motion.div>
-      </div>
-    </div>
+      </div>      </div>    </div>
   );
 }
