@@ -66,7 +66,11 @@ export default function RecursosPage() {
               <div>
                 <h3 className="text-xl font-semibold text-white mb-3">Nuestra Misión</h3>
                 <p>
-                  En ViralizaTuRed, nos dedicamos a ayudar a creadores de contenido, empresas y emprendedores a alcanzar su máximo potencial en redes sociales. Ofrecemos servicios de marketing digital de alta calidad que impulsan el crecimiento orgánico y sostenible de tu presencia online.
+                  En ViralizaTuRed, nos dedicamos a ayudar a creadores de contenido, empresas y emprendedores a alcanzar su máximo potencial en redes sociales. 
+                  Nuestra plataforma SMM te permite crear una cuenta en minutos y comenzar a impulsar tus perfiles en Instagram, TikTok, YouTube, Facebook, 
+                  X (Twitter) y más. Simplemente selecciona la categoría (red social), ingresa la URL del perfil o post que quieres promocionar, elige el 
+                  tipo de servicio (seguidores, likes, comentarios, visualizaciones) y realiza tu pedido. Ofrecemos servicios de marketing digital de alta 
+                  calidad que impulsan el crecimiento real y sostenible de tu presencia online.
                 </p>
               </div>
 
@@ -101,20 +105,25 @@ export default function RecursosPage() {
               <div>
                 <h3 className="text-xl font-semibold text-white mb-3">Primeros Pasos</h3>
                 <ol className="list-decimal list-inside ml-4 space-y-2">
-                  <li><strong className="text-white">Crea tu cuenta:</strong> Regístrate con tu correo electrónico</li>
-                  <li><strong className="text-white">Conecta tus redes:</strong> Vincula tus cuentas de redes sociales</li>
-                  <li><strong className="text-white">Configura tu panel:</strong> Personaliza tu dashboard según tus necesidades</li>
-                  <li><strong className="text-white">Comienza a crecer:</strong> Utiliza nuestras herramientas para aumentar tu presencia</li>
+                  <li><strong className="text-white">Crea tu cuenta:</strong> Regístrate rápidamente con tu correo electrónico</li>
+                  <li><strong className="text-white">Selecciona la categoría:</strong> Elige la red social a impulsar (Instagram, TikTok, YouTube, Facebook, X/Twitter, etc.)</li>
+                  <li><strong className="text-white">Ingresa la URL:</strong> Copia y pega la URL pública de tu perfil o del post/video que deseas promocionar</li>
+                  <li><strong className="text-white">Elige el servicio:</strong> Selecciona entre seguidores, likes, comentarios, visualizaciones, suscriptores, etc.</li>
+                  <li><strong className="text-white">Realiza tu pedido:</strong> Completa el pago y tu pedido comenzará a procesarse automáticamente</li>
+                  <li><strong className="text-white">Monitorea resultados:</strong> Observa en tiempo real cómo crece tu engagement</li>
                 </ol>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold text-white mb-3">Funciones Principales</h3>
                 <ul className="list-disc list-inside ml-4 space-y-2">
-                  <li><strong className="text-white">Gestión de Pedidos:</strong> Administra y monitorea todos tus servicios en un solo lugar</li>
-                  <li><strong className="text-white">Servicios Disponibles:</strong> Explora nuestra amplia gama de servicios para redes sociales</li>
-                  <li><strong className="text-white">Historial y Análisis:</strong> Revisa estadísticas y el progreso de tus campañas</li>
-                  <li><strong className="text-white">Soporte 24/7:</strong> Accede a ayuda en cualquier momento que lo necesites</li>
+                  <li><strong className="text-white">Múltiples Plataformas:</strong> Instagram, TikTok, YouTube, Facebook, X (Twitter), LinkedIn, Telegram y más</li>
+                  <li><strong className="text-white">Servicios Variados:</strong> Seguidores, likes, comentarios, visualizaciones, suscriptores, reproducciones, shares, saves</li>
+                  <li><strong className="text-white">Proceso Simple:</strong> Solo necesitas la URL pública del perfil o post, nunca tu contraseña</li>
+                  <li><strong className="text-white">Gestión de Pedidos:</strong> Administra y monitorea todos tus servicios en tiempo real desde un solo panel</li>
+                  <li><strong className="text-white">Entrega Automática:</strong> Sistema automatizado que procesa pedidos al instante</li>
+                  <li><strong className="text-white">Historial Completo:</strong> Revisa estadísticas, progreso y detalles de cada pedido realizado</li>
+                  <li><strong className="text-white">Soporte 24/7:</strong> Equipo disponible en cualquier momento para ayudarte</li>
                 </ul>
               </div>
             </div>
@@ -133,7 +142,10 @@ export default function RecursosPage() {
                   ¿Qué es un panel SMM?
                 </h3>
                 <p>
-                  Un panel SMM (Social Media Marketing) es una plataforma que te permite gestionar y potenciar tu presencia en redes sociales mediante servicios automatizados como aumento de seguidores, likes, visualizaciones y más.
+                  Un panel SMM (Social Media Marketing) es una plataforma que te permite gestionar y potenciar tu presencia en redes sociales. 
+                  En ViralizaTuRed, creas tu cuenta, seleccionas la categoría (red social a impulsar como Instagram, TikTok, YouTube, Facebook, X/Twitter), 
+                  ingresas la URL del perfil o publicación que deseas promocionar, eliges el tipo de servicio (seguidores, likes, comentarios, visualizaciones, 
+                  suscriptores) y realizas tu pedido. Todo el proceso es automático, rápido y seguro.
                 </p>
               </div>
 
@@ -178,7 +190,9 @@ export default function RecursosPage() {
                   ¿Necesito proporcionar mi contraseña?
                 </h3>
                 <p>
-                  No, nunca solicitamos tu contraseña. Solo necesitamos el nombre de usuario o URL pública de tu perfil para procesar los pedidos. Nunca compartas tus contraseñas con nadie.
+                  No, nunca solicitamos tu contraseña. Solo necesitamos la URL pública de tu perfil o de la publicación/video que deseas impulsar. 
+                  Por ejemplo: instagram.com/tunombre, youtube.com/watch?v=xxx, tiktok.com/@usuario/video/xxx, etc. El proceso es 100% seguro y no 
+                  requiere acceso a tu cuenta. Nunca compartas tus contraseñas con nadie.
                 </p>
               </div>
             </div>

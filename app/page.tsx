@@ -209,8 +209,9 @@ export default function HomePage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              Servicios de <span className="text-purple-400 font-bold">alta calidad</span> para impulsar tu presencia:
-              seguidores, likes, comentarios, vistas y más. <span className="text-blue-400 font-bold">Entrega rápida y resultados reales</span>
+              Plataforma SMM profesional para <span className="text-purple-400 font-bold">impulsar tus redes sociales</span>.
+              Instagram, TikTok, YouTube, Facebook, X (Twitter) y más. Seguidores, likes, comentarios, visualizaciones.
+              <span className="text-blue-400 font-bold"> Crea tu cuenta, elige tu red social y realiza tu pedido al instante</span>
             </motion.p>
 
             <motion.div
@@ -417,7 +418,8 @@ export default function HomePage() {
                 </span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Impulsa tu presencia en redes sociales con servicios de alta calidad. Seguidores reales, engagement auténtico y resultados garantizados.
+                Panel SMM profesional para impulsar tus redes sociales. Instagram, TikTok, YouTube, Facebook, X (Twitter). 
+                Servicios de seguidores, likes, comentarios, visualizaciones y más. Resultados garantizados.
               </p>
             </div>
 
@@ -551,32 +553,32 @@ function FeatureCard({ feature, index }: { feature: typeof features[0]; index: n
 const features = [
   {
     icon: <Users className="w-8 h-8 text-white" />,
-    title: "Seguidores Reales",
-    description: "Aumenta tu base de seguidores con perfiles reales y activos en Instagram, TikTok, Twitter y más plataformas.",
+    title: "Seguidores & Suscriptores",
+    description: "Aumenta tus seguidores en Instagram, TikTok, X (Twitter), Facebook. Suscriptores para YouTube. Perfiles reales y activos que impulsan tu credibilidad.",
   },
   {
     icon: <Star className="w-8 h-8 text-white" />,
     title: "Likes & Reacciones",
-    description: "Impulsa el engagement de tus publicaciones con likes genuinos que mejoran tu alcance orgánico.",
+    description: "Likes para tus posts y videos en Instagram, Facebook, TikTok, YouTube. Reacciones auténticas que mejoran tu alcance orgánico.",
   },
   {
     icon: <BarChart3 className="w-8 h-8 text-white" />,
-    title: "Vistas de Video",
-    description: "Aumenta las reproducciones de tus videos en YouTube, TikTok, Instagram Reels y todas las plataformas.",
+    title: "Visualizaciones",
+    description: "Aumenta las vistas de tus videos en YouTube, TikTok, Instagram Reels, Facebook Videos. Incrementa tu visibilidad y posicionamiento.",
   },
   {
     icon: <Zap className="w-8 h-8 text-white" />,
-    title: "Entrega Instantánea",
-    description: "Servicios entregados en minutos con sistema automático. Sin esperas, resultados inmediatos garantizados.",
+    title: "Comentarios Personalizados",
+    description: "Comentarios reales y personalizados para tus publicaciones. Aumenta el engagement y la interacción con tu audiencia en todas las plataformas.",
   },
   {
     icon: <Shield className="w-8 h-8 text-white" />,
     title: "100% Seguro",
-    description: "Métodos seguros que no comprometen tu cuenta. Protección total y garantía de reembolso incluida.",
+    description: "Métodos seguros certificados que protegen tu cuenta. Solo necesitas la URL pública de tu perfil o post, nunca tu contraseña.",
   },
   {
     icon: <TrendingUp className="w-8 h-8 text-white" />,
-    title: "Precios Competitivos",
-    description: "Los mejores precios del mercado con descuentos por volumen. Calidad premium a precio accesible.",
+    title: "Sistema Automatizado",
+    description: "Crea tu cuenta, selecciona la categoría (red social), ingresa la URL del perfil o post, realiza tu pedido. Todo automático y rápido.",
   },
 ];

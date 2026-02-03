@@ -70,8 +70,12 @@ export default function LegalPage() {
               <div>
                 <h3 className="text-xl font-semibold text-white mb-3">2. Descripción del Servicio</h3>
                 <p>
-                  ViralizaTuRed proporciona servicios de crecimiento en redes sociales, incluyendo pero no limitado a 
-                  seguidores, likes, vistas y engagement para diversas plataformas de redes sociales.
+                  ViralizaTuRed es una plataforma de servicios SMM (Social Media Marketing) que permite a los usuarios 
+                  impulsar sus perfiles y contenido en redes sociales. Los usuarios crean una cuenta, seleccionan la 
+                  categoría (red social a impulsar: Instagram, TikTok, YouTube, Facebook, X/Twitter, etc.), ingresan 
+                  la URL del perfil o publicación que desean promocionar, y realizan su pedido. Los servicios incluyen: 
+                  seguidores, likes, comentarios, visualizaciones, suscriptores, reacciones y otros tipos de engagement 
+                  para múltiples plataformas de redes sociales.
                 </p>
               </div>
 
@@ -81,10 +85,13 @@ export default function LegalPage() {
                   Los usuarios se comprometen a:
                 </p>
                 <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
-                  <li>Proporcionar información precisa y actualizada</li>
-                  <li>No utilizar el servicio para actividades ilegales o fraudulentas</li>
+                  <li>Proporcionar URLs válidas y públicas de perfiles o publicaciones a impulsar</li>
+                  <li>No compartir credenciales de acceso (nunca solicitamos contraseñas)</li>
+                  <li>Proporcionar información precisa de la red social y tipo de servicio requerido</li>
+                  <li>No utilizar el servicio para actividades ilegales, fraudulentas o que violen derechos de terceros</li>
                   <li>No intentar eludir las medidas de seguridad del sistema</li>
                   <li>Cumplir con los términos de servicio de las plataformas de redes sociales</li>
+                  <li>Ser el propietario legítimo del perfil o tener autorización para promocionarlo</li>
                 </ul>
               </div>
 
