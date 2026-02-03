@@ -284,7 +284,7 @@ export default function LegalPage() {
             <p className="text-gray-400 mb-6">
               Si tienes alguna pregunta sobre nuestras políticas, no dudes en contactarnos.
             </p>
-            <Link href="/">
+            <Link href="mailto:ac20102003@gmail.com">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
