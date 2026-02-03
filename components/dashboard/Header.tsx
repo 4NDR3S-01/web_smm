@@ -35,7 +35,7 @@ export default function DashboardHeader({ user, profile }: HeaderProps) {
   }, [user.id]);
 
   return (
-    <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-gray-950/95 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="px-4 lg:px-8 py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Search Bar */}

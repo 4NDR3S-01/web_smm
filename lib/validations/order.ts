@@ -35,7 +35,7 @@ export const createOrderSchema = z.object({
       { message: "La URL debe ser de una red social válida" }
     ),
   quantity: z
-    .number({ invalid_type_error: "La cantidad debe ser un número" })
+    .number()
     .min(1, "La cantidad mínima es 1")
     .max(1000000, "La cantidad máxima es 1,000,000"),
   notes: z
