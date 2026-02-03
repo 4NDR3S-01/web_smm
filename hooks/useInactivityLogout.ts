@@ -15,7 +15,8 @@ export function useInactivityLogout(timeout: number = 30 * 60 * 1000) {
 
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
-    router.push("/login?reason=inactivity");
+    // Usar replace en lugar de push para evitar que puedan volver atrás
+    router.replace("/login?reason=inactivity");
   }, [router, supabase]);
 
   const resetTimer = useCallback(() => {
