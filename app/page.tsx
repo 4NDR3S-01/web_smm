@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring, useInView } from "framer-motion";
-import { ArrowRight, Sparkles, TrendingUp, Users, Zap, Shield, BarChart3, Star, Rocket, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, Users, Zap, Shield, BarChart3, Star, Rocket, CheckCircle2, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { createClient } from "@/lib/supabase/client";
 
 // Generar posiciones de partículas una sola vez (reducido para mejor performance)
 const particles = Array.from({ length: 30 }, (_, i) => ({
@@ -19,6 +20,8 @@ const particles = Array.from({ length: 30 }, (_, i) => ({
 export default function HomePage() {
   const [mounted, setMounted] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const supabase = createClient();
   
   const { scrollYProgress } = useScroll();
   const scaleProgress = useSpring(scrollYProgress, {
@@ -29,6 +32,16 @@ export default function HomePage() {
   
   // Mover el hook useTransform antes de cualquier return condicional
   const scale = useTransform(scaleProgress, [0, 1], [1, 1.5]);
+
+  // Verificar si el usuario está autenticado
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session?.user);
+      setIsLoading(false);
+    };
+    checkAuth();
+  }, [supabase.auth]);
 
   // Simular carga inicial para evitar flash de contenido vacío
   if (isLoading) {
@@ -111,19 +124,33 @@ export default function HomePage() {
             </motion.div>
 
             <div className="flex items-center gap-2 md:gap-4">
-              <Link href="/login">
-                <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/10 text-sm md:text-base px-3 md:px-4">
-                  <span className="hidden sm:inline">Iniciar Sesión</span>
-                  <span className="sm:hidden">Iniciar</span>
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30 text-sm md:text-base px-3 md:px-6">
-                  <span className="hidden sm:inline">Comenzar Gratis</span>
-                  <span className="sm:hidden">Registro</span>
-                  <ArrowRight className="w-4 h-4 ml-1 md:ml-2" />
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link href="/dashboard">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30 text-sm md:text-base px-4 md:px-6">
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      <span className="hidden sm:inline">Dashboard</span>
+                      <span className="sm:hidden">Panel</span>
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/10 text-sm md:text-base px-3 md:px-4">
+                      <span className="hidden sm:inline">Iniciar Sesión</span>
+                      <span className="sm:hidden">Iniciar</span>
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30 text-sm md:text-base px-3 md:px-6">
+                      <span className="hidden sm:inline">Comenzar Gratis</span>
+                      <span className="sm:hidden">Registro</span>
+                      <ArrowRight className="w-4 h-4 ml-1 md:ml-2" />
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -192,7 +219,7 @@ export default function HomePage() {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="flex flex-col sm:flex-row gap-6 justify-center items-center"
             >
-              <Link href="/register">
+              <Link href={isAuthenticated ? "/dashboard" : "/register"}>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -201,8 +228,17 @@ export default function HomePage() {
                     size="lg" 
                     className="text-xl px-12 py-7 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-2xl shadow-purple-500/50 rounded-2xl font-bold"
                   >
-                    <Rocket className="w-6 h-6 mr-3" />
-                    Comenzar Ahora
+                    {isAuthenticated ? (
+                      <>
+                        <LayoutDashboard className="w-6 h-6 mr-3" />
+                        Ir al Dashboard
+                      </>
+                    ) : (
+                      <>
+                        <Rocket className="w-6 h-6 mr-3" />
+                        Comenzar Ahora
+                      </>
+                    )}
                   </Button>
                 </motion.div>
               </Link>
@@ -322,7 +358,7 @@ export default function HomePage() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
-                  <Link href="/register">
+                  <Link href={isAuthenticated ? "/dashboard" : "/register"}>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -331,7 +367,16 @@ export default function HomePage() {
                         size="lg" 
                         className="text-xl px-12 py-7 bg-white text-purple-600 hover:bg-gray-100 shadow-2xl rounded-2xl font-bold"
                       >
-                        Comenzar Gratis <ArrowRight className="w-6 h-6 ml-3" />
+                        {isAuthenticated ? (
+                          <>
+                            <LayoutDashboard className="w-6 h-6 mr-3" />
+                            Ir al Dashboard
+                          </>
+                        ) : (
+                          <>
+                            Comenzar Gratis <ArrowRight className="w-6 h-6 ml-3" />
+                          </>
+                        )}
                       </Button>
                     </motion.div>
                   </Link>
