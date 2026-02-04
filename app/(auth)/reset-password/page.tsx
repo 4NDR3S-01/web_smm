@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Sparkles } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,8 @@ import { createClient } from "@/lib/supabase/client";
 export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -113,11 +115,14 @@ export default function ResetPasswordPage() {
                   Solicitar Nuevo Enlace
                 </Button>
               </Link>
-              <Link href="/login">
-                <Button variant="outline" className="w-full border-purple-500/30 bg-black/50 text-white hover:bg-purple-900/30">
-                  Volver a Iniciar Sesión
-                </Button>
-              </Link>
+              
+              <div className="pt-2">
+                <Link href="/login">
+                  <Button variant="outline" className="w-full border-purple-500/30 bg-black/50 text-white hover:bg-purple-900/30">
+                    Volver a Iniciar Sesión
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -171,14 +176,23 @@ export default function ResetPasswordPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-300">Nueva Contraseña</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500"
-                  {...register("password")}
-                  disabled={isLoading}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500 pr-10"
+                    {...register("password")}
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-red-400">{errors.password.message}</p>
                 )}
@@ -186,20 +200,29 @@ export default function ResetPasswordPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-gray-300">Confirmar Contraseña</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500"
-                  {...register("confirmPassword")}
-                  disabled={isLoading}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500 pr-10"
+                    {...register("confirmPassword")}
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 {errors.confirmPassword && (
                   <p className="text-sm text-red-400">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
-              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3 mb-4">
                 <p className="text-xs text-blue-300">
                   <strong>Requisitos:</strong> Mínimo 6 caracteres, una mayúscula y un número.
                 </p>
@@ -220,11 +243,12 @@ export default function ResetPasswordPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center text-sm">
+            <div className="mt-6 text-center">
               <Link
                 href="/login"
-                className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
+                className="text-sm text-purple-400 hover:text-purple-300 font-semibold transition-colors inline-flex items-center gap-2"
               >
+                <ArrowLeft className="w-4 h-4" />
                 Volver a iniciar sesión
               </Link>
             </div>

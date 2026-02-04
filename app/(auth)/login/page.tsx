@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, LogIn, Sparkles } from "lucide-react";
+import { ArrowLeft, LogIn, Sparkles, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase/client";
 function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -179,14 +180,23 @@ function LoginForm() {
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500"
-                  {...register("password")}
-                  disabled={isLoading}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500 pr-10"
+                    {...register("password")}
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-red-400">{errors.password.message}</p>
                 )}

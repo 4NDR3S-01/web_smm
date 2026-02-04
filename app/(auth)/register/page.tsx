@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, UserPlus, Sparkles } from "lucide-react";
+import { ArrowLeft, UserPlus, Sparkles, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,8 @@ import { createClient } from "@/lib/supabase/client";
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -182,14 +184,23 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-300">Contraseña</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500"
-                  {...register("password")}
-                  disabled={isLoading}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500 pr-10"
+                    {...register("password")}
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-red-400">{errors.password.message}</p>
                 )}
@@ -197,14 +208,23 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-gray-300">Confirmar Contraseña</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500"
-                  {...register("confirmPassword")}
-                  disabled={isLoading}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500 pr-10"
+                    {...register("confirmPassword")}
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 {errors.confirmPassword && (
                   <p className="text-sm text-red-400">{errors.confirmPassword.message}</p>
                 )}
