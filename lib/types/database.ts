@@ -6,7 +6,9 @@ export interface Profile {
   email: string;
   role: UserRole;
   avatar_url?: string;
+  phone?: string;
   balance: number;
+  preferences?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }

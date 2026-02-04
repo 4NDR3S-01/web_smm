@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -32,6 +32,7 @@ import { calculateClientPrice } from "@/lib/utils/pricing";
 
 export default function NuevoPedidoPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -97,6 +98,18 @@ export default function NuevoPedidoPage() {
 
         setServices(servicesData || []);
         setFilteredServices(servicesData || []);
+
+        // Pre-seleccionar categoría desde URL si viene de "Servicios Populares"
+        const categoryParam = searchParams.get("category");
+        if (categoryParam && categoriesData) {
+          const matchedCategory = categoriesData.find(
+            cat => cat.slug?.toLowerCase() === categoryParam.toLowerCase() || 
+                   cat.name.toLowerCase().includes(categoryParam.toLowerCase())
+          );
+          if (matchedCategory) {
+            setSelectedCategory(matchedCategory.id);
+          }
+        }
       } catch (error) {
         console.error("Error al cargar datos:", error);
         toast.error("Error al cargar los datos");

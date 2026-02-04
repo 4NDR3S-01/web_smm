@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -20,15 +20,30 @@ import {
   Instagram,
   Youtube,
   Facebook,
-  Twitter
+  Twitter,
+  TrendingUp,
+  type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants/app";
+import { createClient } from "@/lib/supabase/client";
+import type { ServiceCategory } from "@/lib/types/database";
 
 interface SidebarProps {
   user: any;
   profile: any;
 }
+
+// Mapeo de iconos por slug o nombre de categoría
+const getCategoryIcon = (categoryName: string): LucideIcon => {
+  const name = categoryName.toLowerCase();
+  if (name.includes("instagram")) return Instagram;
+  if (name.includes("youtube")) return Youtube;
+  if (name.includes("facebook")) return Facebook;
+  if (name.includes("twitter") || name.includes("x ")) return Twitter;
+  if (name.includes("tiktok")) return TrendingUp;
+  return Package; // Icono por defecto
+};
 
 const clienteMenu = [
   {
@@ -42,19 +57,10 @@ const clienteMenu = [
     title: "Mis Pedidos",
     items: [
       { name: "Pedidos Activos", href: "/dashboard/pedidos", icon: Package },
-      { name: "Historial", href: "/dashboard/historial", icon: BarChart3 },
+      { name: "Historial", href: "/dashboard/pedidos/historial", icon: BarChart3 },
     ]
   },
-  {
-    title: "Servicios Populares",
-    items: [
-      { name: "Instagram", href: "/dashboard/servicios/instagram", icon: Instagram },
-      { name: "TikTok", href: "/dashboard/servicios/tiktok", icon: Package },
-      { name: "YouTube", href: "/dashboard/servicios/youtube", icon: Youtube },
-      { name: "Facebook", href: "/dashboard/servicios/facebook", icon: Facebook },
-      { name: "X (Twitter)", href: "/dashboard/servicios/twitter", icon: Twitter },
-    ]
-  },
+  // "Servicios Populares" se cargará dinámicamente
   {
     title: "Cuenta",
     items: [
@@ -150,10 +156,53 @@ const adminMenu = [
 export default function DashboardSidebar({ user, profile }: SidebarProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [popularCategories, setPopularCategories] = useState<ServiceCategory[]>([]);
+
+  // Cargar categorías populares desde la base de datos
+  useEffect(() => {
+    const loadPopularCategories = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("service_categories")
+          .select("*")
+          .eq("is_active", true)
+          .order("name")
+          .limit(5); // Limitar a 5 categorías más populares
+
+        if (!error && data) {
+          setPopularCategories(data);
+        }
+      } catch (err) {
+        console.error("Error al cargar categorías:", err);
+      }
+    };
+
+    loadPopularCategories();
+  }, []);
 
   // Determinar menú según el rol
   const getMenuByRole = () => {
     const role = profile?.role || "cliente";
+    
+    // Construir menú dinámico con categorías de la DB
+    const dynamicClienteMenu = [...clienteMenu];
+    
+    // Insertar "Servicios Populares" dinámicamente si hay categorías
+    if (popularCategories.length > 0 && role === "cliente") {
+      const servicesSection = {
+        title: "Servicios Populares",
+        items: popularCategories.map(category => ({
+          name: category.name,
+          href: `/dashboard/pedidos/nuevo?category=${category.slug || category.name.toLowerCase()}`,
+          icon: getCategoryIcon(category.name),
+        }))
+      };
+      
+      // Insertar después de "Mis Pedidos" (posición 2)
+      dynamicClienteMenu.splice(2, 0, servicesSection);
+    }
+    
     switch (role) {
       case "admin":
         return adminMenu;
@@ -162,7 +211,7 @@ export default function DashboardSidebar({ user, profile }: SidebarProps) {
       case "distribuidor":
         return distribuidorMenu;
       default:
-        return clienteMenu;
+        return dynamicClienteMenu;
     }
   };
 

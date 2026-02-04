@@ -13,14 +13,38 @@ import {
   Clock,
   CheckCircle2,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  TrendingUp,
+  type LucideIcon
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import type { Profile, Order } from "@/lib/types/database";
+import type { Profile, Order, ServiceCategory } from "@/lib/types/database";
 import { ORDER_STATUS, LOCALE } from "@/lib/constants/app";
+
+// Mapeo de iconos por slug o nombre de categoría
+const getCategoryIcon = (categoryName: string): LucideIcon => {
+  const name = categoryName.toLowerCase();
+  if (name.includes("instagram")) return Instagram;
+  if (name.includes("youtube")) return Youtube;
+  if (name.includes("facebook")) return Facebook;
+  if (name.includes("twitter") || name.includes("x ")) return Twitter;
+  if (name.includes("tiktok")) return TrendingUp;
+  return Package; // Icono por defecto
+};
+
+// Mapeo de gradientes por categoría
+const getCategoryGradient = (categoryName: string): string => {
+  const name = categoryName.toLowerCase();
+  if (name.includes("instagram")) return "from-pink-500 to-purple-500";
+  if (name.includes("youtube")) return "from-red-500 to-pink-500";
+  if (name.includes("facebook")) return "from-blue-600 to-blue-400";
+  if (name.includes("twitter") || name.includes("x ")) return "from-gray-800 to-gray-600";
+  if (name.includes("tiktok")) return "from-cyan-500 to-blue-500";
+  return "from-purple-500 to-blue-500"; // Gradiente por defecto
+};
 
 interface DashboardStats {
   totalPedidos: number;
@@ -38,6 +62,7 @@ export default function DashboardPage() {
     totalGastado: 0
   });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [popularCategories, setPopularCategories] = useState<ServiceCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,6 +95,18 @@ export default function DashboardPage() {
           setError(`Error al cargar el perfil: ${profileError.message}`);
         } else {
           setProfile(profileData);
+        }
+
+        // Cargar categorías populares desde la base de datos
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from("service_categories")
+          .select("*")
+          .eq("is_active", true)
+          .order("name")
+          .limit(4); // Limitar a 4 categorías principales
+
+        if (!categoriesError && categoriesData) {
+          setPopularCategories(categoriesData);
         }
 
         // Cargar todos los pedidos del usuario
@@ -122,36 +159,14 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  const quickActions = [
-    {
-      icon: Instagram,
-      title: "Instagram",
-      description: "Seguidores, likes, vistas",
-      href: "/dashboard/servicios/instagram",
-      gradient: "from-pink-500 to-purple-500"
-    },
-    {
-      icon: Youtube,
-      title: "YouTube",
-      description: "Suscriptores, vistas, likes",
-      href: "/dashboard/servicios/youtube",
-      gradient: "from-red-500 to-pink-500"
-    },
-    {
-      icon: Facebook,
-      title: "Facebook",
-      description: "Seguidores, likes, shares",
-      href: "/dashboard/servicios/facebook",
-      gradient: "from-blue-600 to-blue-400"
-    },
-    {
-      icon: Twitter,
-      title: "X (Twitter)",
-      description: "Seguidores, retweets, likes",
-      href: "/dashboard/servicios/twitter",
-      gradient: "from-gray-800 to-gray-600"
-    },
-  ];
+  // Construir acciones rápidas dinámicamente desde las categorías de la DB
+  const quickActions = popularCategories.map(category => ({
+    icon: getCategoryIcon(category.name),
+    title: category.name,
+    description: category.description || "Servicios disponibles",
+    href: `/dashboard/pedidos/nuevo?category=${category.slug || category.name.toLowerCase()}`,
+    gradient: getCategoryGradient(category.name)
+  }));
 
   const getStatusInfo = (status: string) => {
     switch (status) {
