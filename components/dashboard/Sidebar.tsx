@@ -22,6 +22,9 @@ import {
   Facebook,
   Twitter,
   TrendingUp,
+  Server,
+  RefreshCw,
+  Code,
   type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -65,6 +68,7 @@ const clienteMenu = [
     title: "Cuenta",
     items: [
       { name: "Billetera", href: "/dashboard/billetera", icon: CreditCard },
+      { name: "API", href: "/dashboard/api", icon: Code },
       { name: "Soporte", href: "/dashboard/soporte", icon: LifeBuoy },
       { name: "Configuración", href: "/dashboard/configuracion", icon: Settings },
     ]
@@ -91,6 +95,7 @@ const distribuidorMenu = [
     title: "Cuenta",
     items: [
       { name: "Billetera", href: "/dashboard/billetera", icon: CreditCard },
+      { name: "API", href: "/dashboard/api", icon: Code },
       { name: "Soporte", href: "/dashboard/soporte", icon: LifeBuoy },
       { name: "Configuración", href: "/dashboard/configuracion", icon: Settings },
     ]
@@ -124,31 +129,25 @@ const adminMenu = [
   {
     title: "Principal",
     items: [
-      { name: "Dashboard", href: "/dashboard", icon: Home },
-      { name: "Estadísticas", href: "/dashboard/estadisticas", icon: BarChart3 },
+      { name: "Dashboard", href: "/admin", icon: Home },
+      { name: "Estadísticas", href: "/admin/estadisticas", icon: BarChart3 },
     ]
   },
   {
     title: "Gestión",
     items: [
-      { name: "Usuarios", href: "/dashboard/usuarios", icon: Users },
-      { name: "Pedidos", href: "/dashboard/pedidos", icon: Package },
-      { name: "Servicios", href: "/dashboard/servicios-admin", icon: Database },
-      { name: "Tickets", href: "/dashboard/tickets", icon: Ticket },
-    ]
-  },
-  {
-    title: "Finanzas",
-    items: [
-      { name: "Transacciones", href: "/dashboard/transacciones", icon: CreditCard },
-      { name: "Comisiones", href: "/dashboard/comisiones", icon: BarChart3 },
+      { name: "Clientes", href: "/admin/clientes", icon: Users },
+      { name: "Órdenes", href: "/admin/ordenes", icon: Package },
+      { name: "Tickets", href: "/admin/tickets", icon: Ticket },
+      { name: "Servicios", href: "/admin/servicios", icon: Database },
+      { name: "Proveedores", href: "/admin/proveedores", icon: Server },
+      { name: "Sincronizar", href: "/admin/servicios/sincronizar", icon: RefreshCw },
     ]
   },
   {
     title: "Sistema",
     items: [
-      { name: "Configuración", href: "/dashboard/configuracion", icon: Settings },
-      { name: "Administradores", href: "/dashboard/administradores", icon: UserCog },
+      { name: "Configuración", href: "/admin/configuracion", icon: Settings },
     ]
   }
 ];
@@ -204,7 +203,7 @@ export default function DashboardSidebar({ user, profile }: SidebarProps) {
     }
     
     switch (role) {
-      case "admin":
+      case "administrador":
         return adminMenu;
       case "soporte":
         return soporteMenu;

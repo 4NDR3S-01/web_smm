@@ -32,7 +32,8 @@ export const ORDER_STATUS = {
   PENDING: "pending",
   PROCESSING: "processing",
   COMPLETED: "completed",
-  CANCELLED: "cancelled",
+  CANCELED: "canceled",
+  CANCELLED: "canceled",
   REFUNDED: "refunded"
 } as const;
 

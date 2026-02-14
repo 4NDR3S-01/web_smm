@@ -139,3 +139,60 @@ export interface ApiStatusResponse {
   remains: string;
   currency: string;
 }
+/**
+ * Tipos de servicios SMM soportados
+ * Basado en public_html/app/helpers/smmapis_helper.php
+ */
+export const SERVICE_TYPES = {
+  DEFAULT: 'default',
+  PACKAGE: 'package',
+  SUBSCRIPTIONS: 'subscriptions',
+  CUSTOM_COMMENTS: 'custom_comments',
+  CUSTOM_COMMENTS_PACKAGE: 'custom_comments_package',
+  MENTIONS_WITH_HASHTAGS: 'mentions_with_hashtags',
+  MENTIONS_CUSTOM_LIST: 'mentions_custom_list',
+  MENTIONS_HASHTAG: 'mentions_hashtag',
+  MENTIONS_USER_FOLLOWERS: 'mentions_user_followers',
+  MENTIONS_MEDIA_LIKERS: 'mentions_media_likers',
+  COMMENT_LIKES: 'comment_likes',
+} as const;
+
+/**
+ * Descripción de cada tipo de servicio
+ */
+export const SERVICE_TYPE_LABELS: Record<string, string> = {
+  default: 'Servicio estándar',
+  package: 'Paquete de servicios',
+  subscriptions: 'Suscripción',
+  custom_comments: 'Comentarios personalizados',
+  custom_comments_package: 'Paquete de comentarios',
+  mentions_with_hashtags: 'Menciones con hashtags',
+  mentions_custom_list: 'Lista personalizada de menciones',
+  mentions_hashtag: 'Menciones por hashtag',
+  mentions_user_followers: 'Menciones de seguidores',
+  mentions_media_likers: 'Menciones de usuarios que dieron like',
+  comment_likes: 'Likes en comentarios',
+};
+
+/**
+ * Tipos de proveedores API soportados
+ * Basado en public_html/app/helpers/smmapis_helper.php
+ */
+export const PROVIDER_TYPES = {
+  STANDARD: 'standard', // JAP, Perfectpanel, Smartpanel
+  INDUSRABBIT: 'indusrabbit', // Type 2
+  YOYOMEDIA: 'yoyomedia', // Type 3
+  INSTASMM: 'instasmm', // Type 4
+  REALFANS: 'realfans', // Type 5
+} as const;
+
+/**
+ * Descripción de cada tipo de proveedor
+ */
+export const PROVIDER_TYPE_LABELS: Record<string, string> = {
+  standard: 'Standard (JAP, Perfectpanel, Smartpanel)',
+  indusrabbit: 'Type 2 (IndusRabbit, Indiansmartpanel)',
+  yoyomedia: 'Type 3 (Yoyomedia)',
+  instasmm: 'Type 4 (Instasmm)',
+  realfans: 'Type 5 (Realfans)',
+};

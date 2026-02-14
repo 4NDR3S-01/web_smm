@@ -1,5 +1,36 @@
 export type UserRole = 'cliente' | 'distribuidor' | 'soporte' | 'administrador';
 
+export type OrderStatus = 
+  | 'awaiting'
+  | 'pending'
+  | 'inprogress'
+  | 'processing'
+  | 'completed'
+  | 'partial'
+  | 'canceled'
+  | 'refunded'
+  | 'error'
+  | 'fail'
+  | 'active'
+  | 'paused'
+  | 'expired'
+  | 'rejected';
+
+export type ServiceType = 
+  | 'default'
+  | 'package'
+  | 'subscriptions'
+  | 'custom_comments'
+  | 'custom_comments_package'
+  | 'mentions_with_hashtags'
+  | 'mentions_custom_list'
+  | 'mentions_hashtag'
+  | 'mentions_user_followers'
+  | 'mentions_media_likers'
+  | 'comment_likes';
+
+export type ProviderType = 'standard' | 'indusrabbit' | 'yoyomedia' | 'instasmm' | 'realfans';
+
 export interface Profile {
   id: string;
   full_name: string;
@@ -8,6 +39,8 @@ export interface Profile {
   avatar_url?: string;
   phone?: string;
   balance: number;
+  api_key?: string;
+  api_status?: boolean;
   preferences?: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -29,16 +62,23 @@ export interface Service {
   category_id?: string;
   name: string;
   description?: string;
-  type: string;
+  type: ServiceType;
   price_per_1000: number;
   min_quantity: number;
   max_quantity: number;
   is_active: boolean;
   delivery_time: string;
-  // Nuevos campos para API externa
+  // API Provider fields
+  api_provider_id?: string;
   api_service_id?: string;
-  api_price?: number;
+  add_type?: 'api' | 'manual';
+  original_price?: number; // Precio del proveedor antes de markup
+  api_price?: number; // Deprecated: usar original_price
   markup_percentage?: number;
+  // Service metadata
+  avg_time?: string;
+  refill?: boolean;
+  cancel?: boolean;
   last_sync_at?: string;
   created_at: string;
   updated_at: string;
@@ -76,17 +116,82 @@ export interface Order {
   user_id: string;
   service_id?: string;
   service_name: string;
-  service_type: string;
+  service_type: ServiceType;
   quantity: number;
-  price: number;
+  price: number; // Cargo al cliente
   target_url: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled' | 'refunded';
+  status: OrderStatus;
   started_count: number;
   remains?: number;
   notes?: string;
+  // API Provider fields
+  api_provider_id?: string;
+  api_order_id?: number; // ID en el proveedor externo (-1 = no enviado)
+  mode?: boolean; // true = API, false = Manual
+  formal_charge?: number; // Costo del proveedor
+  profit?: number; // Ganancia calculada
+  details?: Record<string, any>; // Logs de respuestas API
+  // Timestamps
   created_at: string;
   updated_at: string;
   completed_at?: string;
+  finished_at?: string;
+}
+
+export interface ApiProvider {
+  id: string;
+  name: string;
+  url: string;
+  api_key: string;
+  type: ProviderType;
+  balance?: number;
+  status: boolean;
+  description?: string;
+  no_current_services?: number;
+  last_sync_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServiceSyncOption {
+  id: string;
+  service_id: string;
+  sync_rate: boolean; // Sincronizar precio
+  auto_rate_percent?: number; // Porcentaje de margen
+  sync_min: boolean; // Sincronizar mínimo
+  sync_max: boolean; // Sincronizar máximo
+  auto_status: boolean; // Auto-activar/desactivar
+  auto_sync_name: boolean; // Sincronizar nombre
+  auto_sync_desc: boolean; // Sincronizar descripción
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderRefill {
+  id: string;
+  order_id: string;
+  api_refill_id?: string;
+  status: 'pending' | 'completed' | 'rejected';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderCancel {
+  id: string;
+  order_id: string;
+  reason?: string;
+  status: 'pending' | 'completed' | 'rejected';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserPrice {
+  id: string;
+  user_id: string;
+  service_id: string;
+  custom_price: number; // Precio personalizado por 1000
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Transaction {
@@ -138,6 +243,31 @@ export type Database = {
         Row: ApiSyncLog;
         Insert: Omit<ApiSyncLog, 'id' | 'started_at'>;
         Update: Partial<ApiSyncLog>;
+      };
+      api_providers: {
+        Row: ApiProvider;
+        Insert: Omit<ApiProvider, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<ApiProvider>;
+      };
+      service_sync_options: {
+        Row: ServiceSyncOption;
+        Insert: Omit<ServiceSyncOption, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<ServiceSyncOption>;
+      };
+      orders_refill: {
+        Row: OrderRefill;
+        Insert: Omit<OrderRefill, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<OrderRefill>;
+      };
+      orders_cancel: {
+        Row: OrderCancel;
+        Insert: Omit<OrderCancel, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<OrderCancel>;
+      };
+      user_prices: {
+        Row: UserPrice;
+        Insert: Omit<UserPrice, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<UserPrice>;
       };
     };
     Views: {

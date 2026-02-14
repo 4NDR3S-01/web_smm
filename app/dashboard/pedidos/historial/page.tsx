@@ -58,7 +58,7 @@ export default function HistorialPage() {
 
       // Filtrar por estado (solo completados y cancelados en historial)
       if (statusFilter === "all") {
-        query = query.in("status", [ORDER_STATUS.COMPLETED, ORDER_STATUS.CANCELLED]);
+        query = query.in("status", [ORDER_STATUS.COMPLETED, ORDER_STATUS.CANCELED]);
       } else {
         query = query.eq("status", statusFilter);
       }
@@ -88,7 +88,7 @@ export default function HistorialPage() {
   const stats = {
     totalOrders: orders.length,
     completedOrders: orders.filter(o => o.status === ORDER_STATUS.COMPLETED).length,
-    cancelledOrders: orders.filter(o => o.status === ORDER_STATUS.CANCELLED).length,
+    cancelledOrders: orders.filter(o => o.status === ORDER_STATUS.CANCELED).length,
     totalSpent: orders.reduce((sum, o) => sum + Number(o.price), 0),
     avgOrderValue: orders.length > 0 
       ? orders.reduce((sum, o) => sum + Number(o.price), 0) / orders.length 
@@ -114,7 +114,7 @@ export default function HistorialPage() {
           <CheckCircle2 className="w-3 h-3" /> Completado
         </span>
       );
-    } else if (status === ORDER_STATUS.CANCELLED) {
+    } else if (status === ORDER_STATUS.CANCELED) {
       return (
         <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
           <XCircle className="w-3 h-3" /> Cancelado
