@@ -117,6 +117,7 @@ export interface ApiServiceResponse {
   description?: string;
   dripfeed?: boolean;
   refill?: boolean;
+  cancel?: boolean;
 }
 
 export interface ApiBalanceResponse {

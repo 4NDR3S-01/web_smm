@@ -1,13 +1,12 @@
 /**
- * API Route: /api/admin/services
- * Gestión de servicios (listar, crear, editar)
+ * API Route: /api/admin/categories
+ * Gestión de categorías (admin)
  */
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
 
-// GET: Listar todos los servicios
+// GET: Listar todas las categorías (incluidas inactivas)
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -28,28 +27,18 @@ export async function GET() {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 
-    // Obtener todos los servicios con relaciones
-    const { data: services, error } = await supabase
-      .from('services')
-      .select(`
-        *,
-        category:service_categories (
-          id,
-          name
-        ),
-        api_provider:api_providers (
-          id,
-          name
-        )
-      `)
+    // Obtener todas las categorías
+    const { data: categories, error } = await supabase
+      .from('service_categories')
+      .select('*')
       .order('name');
 
     if (error) {
-      console.error('Error fetching services:', error);
+      console.error('Error fetching categories:', error);
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ services: services || [] });
+    return NextResponse.json({ categories: categories || [] });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json(
@@ -59,7 +48,7 @@ export async function GET() {
   }
 }
 
-// POST: Crear un nuevo servicio
+// POST: Crear nueva categoría
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
@@ -81,53 +70,55 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const {
-      name,
-      description,
-      category_id,
-      type,
-      price_per_1000,
-      min_quantity,
-      max_quantity,
-      delivery_time,
-      is_active,
-    } = body;
+    const { name, description, is_active } = body;
 
-    // Validaciones básicas
-    if (!name || !type || price_per_1000 === undefined) {
+    if (!name || !name.trim()) {
       return NextResponse.json(
-        { error: 'Faltan campos obligatorios' },
+        { error: 'El nombre es requerido' },
         { status: 400 }
       );
     }
 
-    // Usar admin client para bypasear RLS
-    const adminClient = createAdminClient();
+    // Generar slug
+    const slug = name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
 
-    // Insertar el servicio
-    const { data: service, error } = await adminClient
-      .from('services')
+    // Verificar que no exista el slug
+    const { data: existing } = await supabase
+      .from('service_categories')
+      .select('id')
+      .eq('slug', slug)
+      .single();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: 'Ya existe una categoría con ese nombre' },
+        { status: 400 }
+      );
+    }
+
+    // Crear categoría
+    const { data: category, error } = await supabase
+      .from('service_categories')
       .insert({
-        name,
-        description,
-        category_id,
-        type,
-        price_per_1000,
-        min_quantity: min_quantity || 10,
-        max_quantity: max_quantity || 10000,
-        delivery_time: delivery_time || '0-1 hora',
-        is_active: is_active === undefined ? true : is_active,
-        add_type: 'manual',
+        name: name.trim(),
+        slug,
+        description: description?.trim() || null,
+        is_active: is_active !== undefined ? is_active : true,
       })
       .select()
       .single();
 
     if (error) {
-      console.error('Error creating service:', error);
+      console.error('Error creating category:', error);
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, service });
+    return NextResponse.json({ category }, { status: 201 });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json(

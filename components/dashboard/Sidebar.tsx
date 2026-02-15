@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  Sparkles, 
   Home, 
   ShoppingCart, 
   Package, 
@@ -28,7 +27,6 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { APP_NAME } from "@/lib/constants/app";
 import { createClient } from "@/lib/supabase/client";
 import type { ServiceCategory } from "@/lib/types/database";
 
@@ -220,15 +218,7 @@ export default function DashboardSidebar({ user, profile }: SidebarProps) {
     <>
       {/* Mobile menu button */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              {APP_NAME}
-            </span>
-          </Link>
+        <div className="flex items-center justify-end">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -250,20 +240,8 @@ export default function DashboardSidebar({ user, profile }: SidebarProps) {
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="p-6 border-b border-gray-200 dark:border-gray-800">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/50">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                {APP_NAME}
-              </span>
-            </Link>
-          </div>
-
           {/* User Info */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-800 mt-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-semibold">
                 {profile?.full_name?.charAt(0) || user.email?.charAt(0).toUpperCase()}

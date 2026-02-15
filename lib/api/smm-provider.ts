@@ -15,8 +15,8 @@ import { API_PROVIDER_CONFIG } from "../constants/api";
  * - Obtener balance disponible
  */
 export class SmmApiClient {
-  private baseUrl: string;
-  private apiKey: string;
+  private readonly baseUrl: string;
+  private readonly apiKey: string;
 
   constructor(baseUrl?: string, apiKey?: string) {
     this.baseUrl = baseUrl || API_PROVIDER_CONFIG.BASE_URL;
@@ -24,46 +24,84 @@ export class SmmApiClient {
   }
 
   /**
-   * Realiza una petición a la API del proveedor
+   * Realiza una petición POST a la API del proveedor (al estilo PHP)
+   * Envía datos como application/x-www-form-urlencoded
+   * 
+   * Configuración compatible con el panel PHP:
+   * - POST method con form-urlencoded body
+   * - User-Agent específico para compatibilidad
+   * - Timeout de 60 segundos (más generoso)
    */
   private async request<T>(
-    endpoint: string,
+    action: string,
     params: Record<string, string | number> = {}
   ): Promise<T> {
-    const url = new URL(endpoint, this.baseUrl);
+    // Preparar los datos como form-urlencoded (igual que PHP cURL)
+    const formData = new URLSearchParams();
+    formData.append('key', this.apiKey);
+    formData.append('action', action);
     
-    // Agregar API key y parámetros
-    url.searchParams.append('key', this.apiKey);
     Object.entries(params).forEach(([key, value]) => {
-      url.searchParams.append(key, String(value));
+      formData.append(key, String(value));
     });
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), API_PROVIDER_CONFIG.TIMEOUT);
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos
+
+    console.log(`[SmmApiClient] Petición: ${action} a ${this.baseUrl}`);
 
     try {
-      const response = await fetch(url.toString(), {
-        method: 'GET',
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          // User-Agent del panel PHP para máxima compatibilidad
+          'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)',
         },
+        body: formData.toString(),
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      // Intentar leer el body incluso si hay error
+      let responseText: string;
+      try {
+        responseText = await response.text();
+        if (!response.ok) {
+          console.error(`[SmmApiClient] Error ${response.status}:`, responseText.substring(0, 200));
+        }
+      } catch (readError) {
+        throw new Error(`Error leyendo respuesta: ${readError}`);
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          `API Error: ${response.status} ${response.statusText}. Response: ${responseText.substring(0, 200)}`
+        );
+      }
+
+      // Intentar parsear JSON
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error(`Error parseando JSON: ${parseError}. Response: ${responseText.substring(0, 200)}`);
+      }
+      
+      // Manejar errores de la API
+      if (data.error) {
+        throw new Error(`API returned error: ${data.error}`);
+      }
+
       return data;
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          throw new Error('Request timeout');
+          throw new Error('Request timeout (60 segundos)');
         }
+        console.error('[SmmApiClient] Error en petición:', error);
         throw error;
       }
       throw new Error('Unknown error occurred');
@@ -76,11 +114,10 @@ export class SmmApiClient {
    */
   async getServices(): Promise<ApiServiceResponse[]> {
     try {
-      const response = await this.request<ApiServiceResponse[]>(
-        API_PROVIDER_CONFIG.ENDPOINTS.SERVICES,
-        { action: 'services' }
-      );
-      return response;
+      const response = await this.request<ApiServiceResponse[]>('services');
+      const services = Array.isArray(response) ? response : [];
+      console.log(`[SmmApiClient] Obtenidos ${services.length} servicios del proveedor`);
+      return services;
     } catch (error) {
       console.error('Error fetching services from API:', error);
       throw error;
@@ -93,10 +130,7 @@ export class SmmApiClient {
    */
   async getBalance(): Promise<ApiBalanceResponse> {
     try {
-      const response = await this.request<ApiBalanceResponse>(
-        API_PROVIDER_CONFIG.ENDPOINTS.BALANCE,
-        { action: 'balance' }
-      );
+      const response = await this.request<ApiBalanceResponse>('balance');
       return response;
     } catch (error) {
       console.error('Error fetching balance from API:', error);
@@ -114,19 +148,41 @@ export class SmmApiClient {
     quantity: number;
     runs?: number; // Para drip-feed
     interval?: number; // Para drip-feed
+    comments?: string; // Para custom comments
+    usernames?: string; // Para mentions
+    keywords?: string; // Para SEO
+    username?: string; // Para mention likes / comment replies
+    answer_number?: string; // Para polls
+    min?: number; // Para subscriptions
+    max?: number; // Para subscriptions
+    posts?: number; // Para subscriptions
+    old_posts?: number; // Para subscriptions
+    delay?: number; // Para subscriptions
+    expiry?: string; // Para subscriptions
   }): Promise<ApiOrderResponse> {
     try {
-      const response = await this.request<ApiOrderResponse>(
-        API_PROVIDER_CONFIG.ENDPOINTS.ADD_ORDER,
-        {
-          action: 'add',
-          service: params.service,
-          link: params.link,
-          quantity: params.quantity,
-          ...(params.runs && { runs: params.runs }),
-          ...(params.interval && { interval: params.interval }),
-        }
-      );
+      const orderParams: Record<string, string | number> = {
+        service: params.service,
+        link: params.link,
+      };
+
+      // Agregar parámetros opcionales solo si existen
+      if (params.quantity !== undefined) orderParams.quantity = params.quantity;
+      if (params.runs) orderParams.runs = params.runs;
+      if (params.interval) orderParams.interval = params.interval;
+      if (params.comments) orderParams.comments = params.comments;
+      if (params.usernames) orderParams.usernames = params.usernames;
+      if (params.keywords) orderParams.keywords = params.keywords;
+      if (params.username) orderParams.username = params.username;
+      if (params.answer_number) orderParams.answer_number = params.answer_number;
+      if (params.min) orderParams.min = params.min;
+      if (params.max) orderParams.max = params.max;
+      if (params.posts !== undefined) orderParams.posts = params.posts;
+      if (params.old_posts) orderParams.old_posts = params.old_posts;
+      if (params.delay) orderParams.delay = params.delay;
+      if (params.expiry) orderParams.expiry = params.expiry;
+
+      const response = await this.request<ApiOrderResponse>('add', orderParams);
       return response;
     } catch (error) {
       console.error('Error creating order in API:', error);
@@ -140,13 +196,9 @@ export class SmmApiClient {
    */
   async getOrderStatus(orderId: string): Promise<ApiStatusResponse> {
     try {
-      const response = await this.request<ApiStatusResponse>(
-        API_PROVIDER_CONFIG.ENDPOINTS.STATUS,
-        {
-          action: 'status',
-          order: orderId,
-        }
-      );
+      const response = await this.request<ApiStatusResponse>('status', {
+        order: orderId,
+      });
       return response;
     } catch (error) {
       console.error('Error fetching order status from API:', error);
@@ -156,20 +208,90 @@ export class SmmApiClient {
 
   /**
    * Obtiene el estado de múltiples pedidos
-   * Útil para sincronización masiva
    */
-  async getMultipleOrderStatus(orderIds: string[]): Promise<Record<string, ApiStatusResponse>> {
+  async getMultiOrderStatus(orderIds: string[]): Promise<Record<string, ApiStatusResponse>> {
     try {
-      const response = await this.request<Record<string, ApiStatusResponse>>(
-        API_PROVIDER_CONFIG.ENDPOINTS.STATUS,
-        {
-          action: 'status',
-          orders: orderIds.join(','),
-        }
-      );
+      const response = await this.request<Record<string, ApiStatusResponse>>('status', {
+        orders: orderIds.join(','),
+      });
       return response;
     } catch (error) {
-      console.error('Error fetching multiple order statuses from API:', error);
+      console.error('Error fetching multi order status from API:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Solicita un refill (relleno) para un pedido
+   */
+  async refillOrder(orderId: string): Promise<{ refill: string } | { error: string }> {
+    try {
+      const response = await this.request<{ refill: string } | { error: string }>('refill', {
+        order: orderId,
+      });
+      return response;
+    } catch (error) {
+      console.error('Error requesting refill from API:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Solicita refill para múltiples pedidos
+   */
+  async refillMultipleOrders(orderIds: string[]): Promise<Array<{ refill: string; order: string }>> {
+    try {
+      const response = await this.request<Array<{ refill: string; order: string }>>('refill', {
+        orders: orderIds.join(','),
+      });
+      return response;
+    } catch (error) {
+      console.error('Error requesting multi refill from API:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene el estado de un refill
+   */
+  async getRefillStatus(refillId: string): Promise<{ status: string }> {
+    try {
+      const response = await this.request<{ status: string }>('refill_status', {
+        refill: refillId,
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching refill status from API:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene el estado de múltiples refills
+   */
+  async getMultiRefillStatus(refillIds: string[]): Promise<Record<string, { status: string }>> {
+    try {
+      const response = await this.request<Record<string, { status: string }>>('refill_status', {
+        refills: refillIds.join(','),
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching multi refill status from API:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancela múltiples pedidos
+   */
+  async cancelOrders(orderIds: string[]): Promise<Array<{ order: string; cancel?: string; error?: string }>> {
+    try {
+      const response = await this.request<Array<{ order: string; cancel?: string; error?: string }>>('cancel', {
+        orders: orderIds.join(','),
+      });
+      return response;
+    } catch (error) {
+      console.error('Error cancelling orders from API:', error);
       throw error;
     }
   }
@@ -190,7 +312,7 @@ export class SmmApiClient {
 
 /**
  * Instancia singleton del cliente API
- * Usar esta instancia en todo el código
+ * Esta instancia usa la configuración por defecto
  */
 export const smmApiClient = new SmmApiClient();
 

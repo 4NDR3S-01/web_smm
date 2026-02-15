@@ -5,6 +5,11 @@ import { NextResponse, type NextRequest } from 'next/server'
  * Middleware para manejar la autenticación y redirecciones
  */
 export async function middleware(request: NextRequest) {
+  // Excluir rutas de API - manejan su propia autenticación
+  if (request.nextUrl.pathname.startsWith('/api')) {
+    return NextResponse.next()
+  }
+
   // Rutas protegidas que requieren autenticación
   const protectedRoutes = ['/dashboard', '/cliente', '/distribuidor', '/soporte', '/admin']
   const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))
@@ -69,11 +74,11 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except:
      * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
+     * - _next/image (image files)
+     * - favicon.ico, robots.txt
+     * - files with extensions (.svg, .png, etc.)
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

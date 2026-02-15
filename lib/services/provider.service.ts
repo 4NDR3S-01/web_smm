@@ -31,6 +31,29 @@ export async function createProvider(
   const supabase = await createClient();
 
   try {
+    // Primero, validar la conexión con el proveedor
+    console.log('[createProvider] Validando conexión con proveedor:', {
+      url: input.url,
+      type: input.type
+    });
+    
+    const apiClient = new SmmApiClient(input.url, input.api_key);
+    
+    let initialBalance = 0;
+    try {
+      const balanceData = await apiClient.getBalance();
+      console.log('[createProvider] Balance obtenido:', balanceData);
+      initialBalance = Number.parseFloat(balanceData.balance);
+    } catch (error) {
+      console.error('[createProvider] Error validating provider connection:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      return { 
+        success: false, 
+        error: `No se pudo conectar con el proveedor: ${errorMessage}. Verifica la URL y API key.` 
+      };
+    }
+
+    // Si la conexión es exitosa, crear el proveedor
     const { data: provider, error } = await supabase
       .from('api_providers')
       .insert({
@@ -39,8 +62,8 @@ export async function createProvider(
         api_key: input.api_key,
         type: input.type,
         description: input.description,
-        status: input.status !== undefined ? input.status : true,
-        balance: 0,
+        status: input.status ?? true,
+        balance: initialBalance,
         no_current_services: 0,
       })
       .select()
@@ -119,12 +142,23 @@ export async function getActiveProviders(): Promise<ApiProvider[]> {
 export async function getAllProviders(): Promise<ApiProvider[]> {
   const supabase = await createClient();
 
+  // Obtener proveedores con conteo de servicios importados
   const { data: providers } = await supabase
     .from('api_providers')
-    .select('*')
+    .select(`
+      *,
+      services:services(count)
+    `)
     .order('created_at', { ascending: false });
 
-  return providers || [];
+  // Mapear el resultado para incluir el conteo correcto
+  const providersWithCount = (providers || []).map(provider => ({
+    ...provider,
+    no_current_services: provider.services?.[0]?.count || 0,
+    services: undefined, // Eliminar el campo temporal
+  }));
+
+  return providersWithCount as ApiProvider[];
 }
 
 /**
@@ -169,7 +203,7 @@ export async function updateProviderBalance(
     const apiClient = new SmmApiClient(provider.url, provider.api_key);
 
     const balanceData = await apiClient.getBalance();
-    const balance = parseFloat(balanceData.balance);
+    const balance = Number.parseFloat(balanceData.balance);
 
     // Actualizar en la base de datos
     const supabase = await createClient();

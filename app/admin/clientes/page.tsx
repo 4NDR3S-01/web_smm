@@ -56,6 +56,11 @@ export default function ClientsPage() {
   const fetchClients = async () => {
     try {
       const response = await fetch('/api/admin/clients');
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
       
       if (data.clients) {

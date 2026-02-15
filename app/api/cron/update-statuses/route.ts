@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
         if (orderIds.length === 0) continue;
 
         // Consultar estados en batch (más eficiente)
-        const statuses = await apiClient.getMultipleOrderStatus(orderIds);
+        const statuses = await apiClient.getMultiOrderStatus(orderIds);
 
         // Actualizar cada orden con su estado
         for (const [apiOrderId, statusData] of Object.entries(statuses)) {

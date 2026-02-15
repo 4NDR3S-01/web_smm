@@ -22,6 +22,11 @@ export default function APIPage() {
   const fetchApiInfo = async () => {
     try {
       const response = await fetch('/api/user/api-info');
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
       setApiInfo(data);
     } catch (error) {
@@ -42,6 +47,13 @@ export default function APIPage() {
       const response = await fetch('/api/user/api-generate', {
         method: 'POST',
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Error de conexión' }));
+        toast.error(errorData.error || 'Error al generar API key');
+        return;
+      }
+      
       const data = await response.json();
 
       if (data.success) {
@@ -62,6 +74,13 @@ export default function APIPage() {
     try {
       const endpoint = apiInfo.apiStatus ? '/api/user/api-disable' : '/api/user/api-enable';
       const response = await fetch(endpoint, { method: 'POST' });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Error de conexión' }));
+        toast.error(errorData.error || 'Error al cambiar estado de API');
+        return;
+      }
+      
       const data = await response.json();
 
       if (data.success) {

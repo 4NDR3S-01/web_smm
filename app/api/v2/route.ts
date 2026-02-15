@@ -89,7 +89,7 @@ async function handleServices(userId: string) {
         name,
         description,
         type,
-        category:categories (
+        category:service_categories (
           id,
           name
         ),

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bell, Search } from "lucide-react";
+import { Bell, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { APP_NAME } from "@/lib/constants/app";
+import Link from "next/link";
 
 interface HeaderProps {
   user: any;
@@ -38,17 +40,15 @@ export default function DashboardHeader({ user, profile }: HeaderProps) {
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-gray-950/95 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="px-4 lg:px-8 py-4">
         <div className="flex items-center justify-between gap-4">
-          {/* Search Bar */}
-          <div className="flex-1 max-w-2xl hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar servicios, pedidos..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-              />
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
-          </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              {APP_NAME}
+            </span>
+          </Link>
 
           {/* Right side */}
           <div className="flex items-center gap-3">

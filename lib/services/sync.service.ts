@@ -4,6 +4,7 @@
  */
 
 import { createClient } from '../supabase/server';
+import { createAdminClient } from '../supabase/admin';
 import { ApiProvider, Service, ServiceSyncOption } from '../types/database';
 import { SmmApiClient } from '../api/smm-provider';
 import { applyMarkupToProviderPrice } from './pricing.service';
@@ -14,6 +15,17 @@ export interface SyncServicesInput {
   categoryId?: string;
   markupPercentage?: number;
   autoImport?: boolean;
+  importLimit?: number;
+  syncOptions?: {
+    syncNewPrice?: boolean;
+    syncOriginalPrice?: boolean;
+    syncStatus?: boolean;
+    syncName?: boolean;
+    syncDescription?: boolean;
+    syncMin?: boolean;
+    syncMax?: boolean;
+    syncDripfeed?: boolean;
+  };
 }
 
 export interface SyncResult {
@@ -36,7 +48,10 @@ export interface SyncResult {
 export async function syncServicesFromProvider(
   input: SyncServicesInput
 ): Promise<SyncResult> {
+  // Cliente normal para consultas
   const supabase = await createClient();
+  // Cliente admin para operaciones de escritura (bypasea RLS)
+  const adminClient = createAdminClient();
 
   const stats = {
     total: 0,
@@ -71,8 +86,15 @@ export async function syncServicesFromProvider(
     const apiServices = await apiClient.getServices();
     stats.total = apiServices.length;
 
-    // 4. Obtener servicios existentes de este proveedor
-    const { data: existingServices } = await supabase
+    // Aplicar límite de importación si está configurado
+    const servicesToProcess = input.importLimit 
+      ? apiServices.slice(0, input.importLimit)
+      : apiServices;
+
+    console.log(`Procesando ${servicesToProcess.length} de ${apiServices.length} servicios...`);
+
+    // 4. Obtener servicios existentes de este proveedor (usar admin client)
+    const { data: existingServices } = await adminClient
       .from('services')
       .select('*, service_sync_options(*)')
       .eq('api_provider_id', input.providerId);
@@ -82,16 +104,18 @@ export async function syncServicesFromProvider(
     );
 
     // IDs de servicios de la API (para detectar eliminados)
-    const apiServiceIds = new Set(apiServices.map(s => s.service));
+    const apiServiceIds = new Set(servicesToProcess.map(s => s.service));
 
     // 5. Procesar cada servicio de la API
-    for (const apiService of apiServices) {
+    let processedCount = 0;
+    for (const apiService of servicesToProcess) {
       try {
         const existingService = existingServiceMap.get(apiService.service);
 
         if (existingService) {
           // Actualizar servicio existente
           await updateExistingService(
+            adminClient,
             existingService,
             apiService,
             input.markupPercentage
@@ -100,6 +124,7 @@ export async function syncServicesFromProvider(
         } else if (input.autoImport) {
           // Crear nuevo servicio
           await createNewService(
+            adminClient,
             apiService,
             input.providerId,
             input.categoryId,
@@ -107,11 +132,19 @@ export async function syncServicesFromProvider(
           );
           stats.newServices++;
         }
+        
+        processedCount++;
+        // Log de progreso cada 25 servicios
+        if (processedCount % 25 === 0) {
+          console.log(`Progreso: ${processedCount}/${servicesToProcess.length} servicios procesados`);
+        }
       } catch (error: any) {
         stats.errors++;
         errors.push(`Servicio ${apiService.service}: ${error.message}`);
       }
     }
+
+    console.log(`Sincronización completada: ${stats.newServices} nuevos, ${stats.updatedServices} actualizados, ${stats.errors} errores`);
 
     // 6. Desactivar servicios que ya no existen en la API
     if (existingServices) {
@@ -177,11 +210,11 @@ export async function syncServicesFromProvider(
  * Actualizar un servicio existente con datos de la API
  */
 async function updateExistingService(
+  adminClient: any,
   existingService: any,
   apiService: any,
   markupPercentage?: number
 ): Promise<void> {
-  const supabase = await createClient();
 
   // Obtener opciones de sincronización
   const syncOptions = existingService.service_sync_options?.[0];
@@ -229,7 +262,7 @@ async function updateExistingService(
   updates.refill = apiService.refill || false;
   updates.cancel = apiService.cancel || false;
 
-  await supabase
+  await adminClient
     .from('services')
     .update(updates)
     .eq('id', existingService.id);
@@ -239,12 +272,12 @@ async function updateExistingService(
  * Crear un nuevo servicio desde la API
  */
 async function createNewService(
+  adminClient: any,
   apiService: any,
   providerId: string,
   categoryId?: string,
   markupPercentage?: number
 ): Promise<void> {
-  const supabase = await createClient();
 
   const originalPrice = parseFloat(apiService.rate);
   const markup = markupPercentage || 20;
@@ -269,7 +302,7 @@ async function createNewService(
     last_sync_at: new Date().toISOString(),
   };
 
-  const { data: newService, error } = await supabase
+  const { data: newService, error } = await adminClient
     .from('services')
     .insert(serviceData)
     .select()
@@ -280,7 +313,7 @@ async function createNewService(
   }
 
   // Crear opciones de sincronización por defecto
-  await supabase.from('service_sync_options').insert({
+  await adminClient.from('service_sync_options').insert({
     service_id: newService.id,
     sync_rate: true,
     auto_rate_percent: markup,

@@ -68,11 +68,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, url, api_key, type, description, status } = body;
+    const { name, url, key, type, description, status } = body;
 
-    if (!name || !url || !api_key || !type) {
+    if (!name || !url || !key || !type) {
       return NextResponse.json(
-        { error: 'Campos requeridos: name, url, api_key, type' },
+        { error: 'Campos requeridos: name, url, key, type' },
         { status: 400 }
       );
     }
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     const result = await createProvider({
       name,
       url,
-      api_key,
+      api_key: key,
       type,
       description,
       status,

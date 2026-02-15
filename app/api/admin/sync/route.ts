@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { syncServicesFromProvider } from '@/lib/services/sync.service';
 
+// Permitir que esta ruta tome más tiempo (importante para sincronización de muchos servicios)
+// export const maxDuration = 60; // 60 segundos (solo disponible en Vercel Pro+)
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // 1. Autenticar usuario
@@ -36,7 +40,15 @@ export async function POST(request: NextRequest) {
 
     // 3. Obtener parámetros de la solicitud
     const body = await request.json();
-    const { providerId, categoryId, markupPercentage, autoImport } = body;
+    const {
+      providerId,
+      categoryId,
+      markupPercentage,
+      autoImport, // Retrocompatibilidad
+      syncMode, // 'all' | 'current'
+      importLimit, // Límite de servicios a importar
+      syncOptions, // Opciones avanzadas de sincronización
+    } = body;
 
     if (!providerId) {
       return NextResponse.json(
@@ -45,12 +57,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // El syncMode 'all' equivale a autoImport=true
+    const shouldAutoImport = syncMode === 'all' || (syncMode === undefined && autoImport !== false);
+
     // 4. Ejecutar sincronización
     const result = await syncServicesFromProvider({
       providerId,
       categoryId: categoryId || undefined,
       markupPercentage: markupPercentage || 20,
-      autoImport: autoImport !== undefined ? autoImport : true,
+      autoImport: shouldAutoImport,
+      importLimit: importLimit || undefined,
+      syncOptions: syncOptions || undefined,
     });
 
     if (!result.success) {

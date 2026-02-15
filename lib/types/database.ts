@@ -88,15 +88,8 @@ export interface ServiceWithFinalPrice extends Service {
   final_price_per_1000: number;
 }
 
-export interface MarkupSetting {
-  id: string;
-  category_id?: string;
-  global_markup_percentage: number;
-  description?: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+// MarkupSetting removed - markup_settings table dropped
+// Now using simple provider-based markup + per-sync customization
 
 export interface ApiSyncLog {
   id: string;
@@ -233,11 +226,6 @@ export type Database = {
         Row: Transaction;
         Insert: Omit<Transaction, 'id' | 'created_at'>;
         Update: Partial<Transaction>;
-      };
-      markup_settings: {
-        Row: MarkupSetting;
-        Insert: Omit<MarkupSetting, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<MarkupSetting>;
       };
       api_sync_log: {
         Row: ApiSyncLog;

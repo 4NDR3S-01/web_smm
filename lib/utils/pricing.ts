@@ -1,4 +1,4 @@
-import type { Service, MarkupSetting } from "../types/database";
+import type { Service } from "../types/database";
 import { DEFAULT_MARKUP } from "../constants/api";
 
 /**
@@ -48,54 +48,26 @@ export function calculateProfit(
 
 /**
  * Obtiene el markup aplicable a un servicio
- * Prioridad: markup específico del servicio > markup de categoría > markup global
+ * Usa el markup específico del servicio o el default
  * @param service - Servicio a evaluar
- * @param markupSettings - Configuraciones de markup disponibles
  * @returns Porcentaje de markup a aplicar
  */
-export function getApplicableMarkup(
-  service: Service,
-  markupSettings: MarkupSetting[] = []
-): number {
-  // 1. Prioridad: markup específico del servicio
+export function getApplicableMarkup(service: Service): number {
+  // Usar markup específico del servicio o el default
   if (service.markup_percentage !== null && service.markup_percentage !== undefined) {
     return service.markup_percentage;
   }
-
-  // 2. Prioridad: markup de la categoría del servicio
-  if (service.category_id) {
-    const categoryMarkup = markupSettings.find(
-      m => m.category_id === service.category_id && m.is_active
-    );
-    if (categoryMarkup) {
-      return categoryMarkup.global_markup_percentage;
-    }
-  }
-
-  // 3. Prioridad: markup global (sin category_id)
-  const globalMarkup = markupSettings.find(
-    m => !m.category_id && m.is_active
-  );
-  if (globalMarkup) {
-    return globalMarkup.global_markup_percentage;
-  }
-
-  // 4. Por defecto
   return DEFAULT_MARKUP.GLOBAL;
 }
 
 /**
- * Calcula el precio final de un servicio considerando todos los markups
+ * Calcula el precio final de un servicio
  * @param service - Servicio a calcular
- * @param markupSettings - Configuraciones de markup
  * @returns Precio final por 1000 unidades
  */
-export function calculateServiceFinalPrice(
-  service: Service,
-  markupSettings: MarkupSetting[] = []
-): number {
+export function calculateServiceFinalPrice(service: Service): number {
   const apiPrice = service.api_price || service.price_per_1000;
-  const markup = getApplicableMarkup(service, markupSettings);
+  const markup = getApplicableMarkup(service);
   return calculateFinalPrice(apiPrice, markup);
 }
 

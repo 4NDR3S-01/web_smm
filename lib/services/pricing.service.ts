@@ -168,56 +168,8 @@ export function calculateRefund(
   };
 }
 
-/**
- * Obtener el markup aplicable para un servicio
- * Prioridad: servicio > categoría > global
- */
-export async function getApplicableMarkup(
-  serviceId: string,
-  categoryId?: string
-): Promise<number> {
-  const supabase = await createClient();
-
-  // 1. Buscar markup del servicio
-  const { data: service } = await supabase
-    .from('services')
-    .select('markup_percentage')
-    .eq('id', serviceId)
-    .single();
-
-  if (service?.markup_percentage !== null && service?.markup_percentage !== undefined) {
-    return service.markup_percentage;
-  }
-
-  // 2. Buscar markup de la categoría
-  if (categoryId) {
-    const { data: categoryMarkup } = await supabase
-      .from('markup_settings')
-      .select('global_markup_percentage')
-      .eq('category_id', categoryId)
-      .eq('is_active', true)
-      .single();
-
-    if (categoryMarkup?.global_markup_percentage !== null && categoryMarkup?.global_markup_percentage !== undefined) {
-      return categoryMarkup.global_markup_percentage;
-    }
-  }
-
-  // 3. Buscar markup global (sin category_id)
-  const { data: globalMarkup } = await supabase
-    .from('markup_settings')
-    .select('global_markup_percentage')
-    .is('category_id', null)
-    .eq('is_active', true)
-    .single();
-
-  if (globalMarkup?.global_markup_percentage !== null && globalMarkup?.global_markup_percentage !== undefined) {
-    return globalMarkup.global_markup_percentage;
-  }
-
-  // Por defecto: 20%
-  return 20;
-}
+// getApplicableMarkup removed - markup_settings table dropped
+// Now using simple provider-based markup + per-sync customization
 
 /**
  * Calcular estadísticas de ganancias
